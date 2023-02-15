@@ -3,7 +3,6 @@ from fastapi import FastAPI, Request, Query
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.responses import JSONResponse
 from src.constants.field import V1_PREFIX
-from src.controller.v1.admin import admin
 from src.utils.connections.check_database_connection import DatabaseConfiguration
 from src.utils.connections.db_object import db
 from src.utils.custom_exceptions.custom_exceptions import CustomExceptionHandler
