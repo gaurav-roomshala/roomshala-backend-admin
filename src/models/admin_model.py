@@ -35,8 +35,7 @@ class ResetPassword(BaseModel):
 
 
 class ForgotPassword(BaseModel):
-    mail: Optional[str]
-    phone_number: Optional[str]
+    mail:str = Field(...,description="Mail")
 
 
 class Admin(BaseModel):

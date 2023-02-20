@@ -1,3 +1,5 @@
+import uuid
+
 from fastapi import APIRouter, Query, Path, Depends
 import re
 
@@ -5,11 +7,12 @@ from fastapi.security import OAuth2PasswordRequestForm
 from starlette import status
 from fastapi.encoders import jsonable_encoder
 from src.constants.utilities import PHONE_REGEX, JWT_EXPIRATION_TIME
-from src.models.admin_model import Admin
+from src.models.admin_model import Admin, ForgotPassword, ResetPassword
 from src.utils.checks.admin_related_check import CheckAdminExistence
 from src.utils.custom_exceptions.custom_exceptions import CustomExceptionHandler
 from src.utils.helpers import jwt_utils
-from src.utils.helpers.db_helpers import add_admin,admin_registered_with_mail_or_phone
+from src.utils.helpers.db_helpers import add_admin, admin_registered_with_mail_or_phone, find_exist_admin, \
+    create_reset_code, check_reset_password_token, reset_admin_password, disable_reset_code
 from src.utils.helpers.misc import random_with_N_digits, hash_password, verify_password
 from src.utils.logger.logger import logger
 from src.models.admin_model import Role
@@ -105,3 +108,83 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
                                "role": success["role"]
                                }
                          ).response()
+
+
+@admin.post("/forgot-password", tags=["ADMIN/GENERAL"])
+async def forgot_password(request: ForgotPassword):
+    response = await find_exist_admin(email=request.mail)
+    if response is None:
+        raise CustomExceptionHandler(message="Admin Not Found",
+                                     success=False,
+                                     code=status.HTTP_400_BAD_REQUEST,
+                                     target="FORGOT-PASSWORD")
+    reset_code = str(uuid.uuid1())
+    try:
+        await create_reset_code(mail=request.mail, reset_code=reset_code)
+    except Exception as Why:
+        logger.error("=== ERROR OCCURED IN RESETTING PASSWORD {} =====".format(Why))
+        raise CustomExceptionHandler(message="Something went wrong at our end,Please try again later",
+                                     code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                                     success=False,
+                                     target="[RESET_PASSWORD]"
+                                     )
+    return ResponseModel(message="Email has been sent with instructions to reset password",
+                         success=True,
+                         code=status.HTTP_201_CREATED,
+                         data={"code": reset_code}
+                         )
+
+
+@admin.post("/reset-password", tags=["ADMIN/GENERAL"])
+async def reset_password(request: ResetPassword):
+    check_token = await check_reset_password_token(request.reset_password_token)
+    if not check_token:
+        logger.error("======== RESET TOKEN HAS EXPIRED =========")
+        raise CustomExceptionHandler(message="Reset password token has expired,please request a new one",
+                                     success=False,
+                                     code=status.HTTP_404_NOT_FOUND,
+                                     target="[RESET_PASSWORD]"
+                                     )
+    if request.new_password != request.confirm_password:
+        raise CustomExceptionHandler(message="Sorry, password didn't match",
+                                     success=False,
+                                     code=status.HTTP_409_CONFLICT,
+                                     target="RESET-PASSWORD")
+    new_hashed_password = hash_password(request.new_password)
+    try:
+        await reset_admin_password(new_hashed_password=new_hashed_password,
+                                   mail=check_token["mail"]
+                                   )
+        await disable_reset_code(request.reset_password_token, check_token["mail"])
+    except Exception as Why:
+        logger.error("===== EXCEPTION OCCURRED IN RESETTING PASSWORD ========".format(Why))
+        raise CustomExceptionHandler(message="Something went wrong at our end,Please try again later",
+                                     code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                                     success=False,
+                                     target="[RESET_PASSWORD]"
+                                     )
+    ResponseModel(message="Password has been reset successfully.",
+                  success=True,
+                  code=status.HTTP_200_OK,
+                  data={}
+                  ).response()
+
+
+@admin.post("/profile",tags=["ADMIN/RESTRICTED"])
+async def fetch_admin_info(current_user:Admin=Depends(get)):
+    pass
+
+
+@admin.patch("/status",tags=["ADMIN/RESTRICTED"])
+async def update_status():
+    pass
+
+
+@admin.patch("/change-password",tags=["ADMIN/RESTRICTED"])
+async def change_password():
+    pass
+
+
+
+
+

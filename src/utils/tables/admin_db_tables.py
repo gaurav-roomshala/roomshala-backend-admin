@@ -46,6 +46,36 @@ def creating_admin_table():
         raise Exception("SOMETHING WENT WRONG IN CREATING ADMIN TABLE")
 
 
+def creating_codes_table():
+    try:
+        logger.info(" ########## GOING FOR CODES TABLES ##############")
+        conn = psycopg2.connect(database=DB_NAME, user=DB_USER, host=DB_HOST, password=DB_PASSWORD, port=DB_PORT)
+        cur = conn.cursor()
+        cur.execute("select * from information_schema.tables where table_name=%s", ('admin_code',))
+        if bool(cur.rowcount):
+            logger.info("#### TABLE ALREADY EXIST IN THE DATABASE PASSING IT")
+            conn.close()
+            return True
+        else:
+            logger.info("#### CODES TABLE DOESN'T EXIST #### ")
+            metadata = sqlalchemy.MetaData()
+            codes = sqlalchemy.Table(
+                "admin_code",
+                metadata,
+                sqlalchemy.Column("id", Integer, Sequence("admin_code_id_seq"), primary_key=True),
+                sqlalchemy.Column("mail", sqlalchemy.String(100)),
+                sqlalchemy.Column("reset_code", sqlalchemy.String(60)),
+                sqlalchemy.Column("expired_in", DateTime),
+                sqlalchemy.Column("status", sqlalchemy.String(1))
+            )
+            engine = sqlalchemy.create_engine(
+                DB_URL, pool_size=3, max_overflow=0)
+            metadata.create_all(engine)
+            conn.close()
+            return codes
+    except Exception as e:
+        logger.error("{}".format(e))
+
 def creating_facility_tables():
     try:
         logger.info("======= GOING FOR FACILITY TABLE ==============")

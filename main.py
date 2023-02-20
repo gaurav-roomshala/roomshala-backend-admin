@@ -7,7 +7,7 @@ from src.controller.v1.amenty import amenities
 from src.utils.connections.check_database_connection import DatabaseConfiguration
 from src.utils.connections.db_object import db
 from src.utils.custom_exceptions.custom_exceptions import CustomExceptionHandler
-from src.utils.tables.admin_db_tables import creating_admin_table, creating_amenties_tables, creating_facility_tables
+from src.utils.tables.admin_db_tables import creating_admin_table, creating_amenties_tables, creating_facility_tables,creating_codes_table
 from src.controller.v1.admin import admin
 from src.controller.v1.facility import facility
 
@@ -20,7 +20,7 @@ def connections():
     creating_admin_table()
     creating_amenties_tables()
     creating_facility_tables()
-
+    creating_codes_table()
 
 connections()
 
