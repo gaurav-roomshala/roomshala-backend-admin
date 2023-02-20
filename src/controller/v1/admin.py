@@ -4,7 +4,6 @@ import re
 from fastapi.security import OAuth2PasswordRequestForm
 from starlette import status
 from fastapi.encoders import jsonable_encoder
-from src.constants.field import DOCTOR_REGISTRATION, DOCTOR_LOGIN
 from src.constants.utilities import PHONE_REGEX, JWT_EXPIRATION_TIME
 from src.models.admin_model import Admin
 from src.utils.checks.admin_related_check import CheckAdminExistence
@@ -23,7 +22,7 @@ admin = APIRouter()
 async def register_admin(admin: Admin):
     # check if id has the authorised role which is super admin, and createdby equals to user
     admin_map = jsonable_encoder(admin)
-    find_admin = CheckAdminExistence(target=DOCTOR_REGISTRATION, phone_number=admin_map["phone_number"],
+    find_admin = CheckAdminExistence(target="CHECK_ADMIN", phone_number=admin_map["phone_number"],
                                      id=id,
                                      email=admin_map["email"])
     # check_for_role = find_admin.find_admin_by_id()
@@ -39,7 +38,7 @@ async def register_admin(admin: Admin):
     if not success:
         raise CustomExceptionHandler(message="Something went wrong,Please try again later",
                                      code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                                     target=DOCTOR_REGISTRATION,
+                                     target="CHECK_ADMIN",
                                      success=False
                                      )
     access_token_expires = jwt_utils.timedelta(minutes=JWT_EXPIRATION_TIME)

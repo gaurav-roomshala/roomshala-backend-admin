@@ -2,11 +2,14 @@ from datetime import datetime
 from fastapi import FastAPI, Request, Query
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.responses import JSONResponse
-from src.constants.field import V1_PREFIX
+from src.constants.field import V1_PREFIX, V1_PREFIX_PROPERTY
+from src.controller.v1.amenty import amenities
 from src.utils.connections.check_database_connection import DatabaseConfiguration
 from src.utils.connections.db_object import db
 from src.utils.custom_exceptions.custom_exceptions import CustomExceptionHandler
-from src.utils.tables.admin_db_tables import creating_admin_table
+from src.utils.tables.admin_db_tables import creating_admin_table, creating_amenties_tables, creating_facility_tables
+from src.controller.v1.admin import admin
+from src.controller.v1.facility import facility
 
 origins = ["*"]
 conn = DatabaseConfiguration()
@@ -15,6 +18,9 @@ conn = DatabaseConfiguration()
 def connections():
     conn.checking_database_connection()
     creating_admin_table()
+    creating_amenties_tables()
+    creating_facility_tables()
+
 
 connections()
 
@@ -31,7 +37,8 @@ app.add_middleware(
 )
 
 app.include_router(admin, prefix=V1_PREFIX)
-
+app.include_router(facility, prefix=V1_PREFIX_PROPERTY)
+app.include_router(amenities, prefix=V1_PREFIX_PROPERTY)
 
 
 @app.get("/health")
