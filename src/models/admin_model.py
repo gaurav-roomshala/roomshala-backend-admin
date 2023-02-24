@@ -22,6 +22,10 @@ class Role(str, Enum):
     admin = "ADMIN"
 
 
+class ChangeStatus(BaseModel):
+    is_active:bool
+
+
 class ChangePassword(BaseModel):
     current_password: str
     new_password: str
@@ -43,7 +47,6 @@ class Admin(BaseModel):
     last_name: str = Field(...)
     gender: Gender
     email: str = Field(...)
-    password:str = None
     phone_number: str = Field(...)
     is_active: bool = None
     role: Role

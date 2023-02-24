@@ -16,4 +16,8 @@ def hash_password(password: str):
 
 
 def verify_password(plain_password: str, hashed_passwrd: str):
+
     return pwd_context.verify(plain_password, hashed_passwrd)
+
+
+print(verify_password(plain_password="Anubhav@1234",hashed_passwrd="$2b$12$GBYAwZwVFSVkMvraQ2VL/OLALc3HUip6tYZGeX0AaE2IFHT/EMkeK"))

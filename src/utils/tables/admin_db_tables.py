@@ -23,8 +23,8 @@ def creating_admin_table():
                 "admin",
                 metadata,
                 sqlalchemy.Column("id", Integer, Sequence("admin_id_seq"), primary_key=True),
-                sqlalchemy.Column("first name", sqlalchemy.String()),
-                sqlalchemy.Column("last name", sqlalchemy.String()),
+                sqlalchemy.Column("first_name", sqlalchemy.String()),
+                sqlalchemy.Column("last_name", sqlalchemy.String()),
                 sqlalchemy.Column("gender", sqlalchemy.String()),
                 sqlalchemy.Column("email", sqlalchemy.String()),
                 sqlalchemy.Column("password", sqlalchemy.String()),
@@ -75,6 +75,33 @@ def creating_codes_table():
             return codes
     except Exception as e:
         logger.error("{}".format(e))
+
+
+def creating_blacklist_table():
+    try:
+        logger.info(" ########## GOING FOR BLACKLIST TABLES ##############")
+        conn = psycopg2.connect(database=DB_NAME, user=DB_USER, host=DB_HOST, password=DB_PASSWORD, port=DB_PORT)
+        cur = conn.cursor()
+        cur.execute("select * from information_schema.tables where table_name=%s", ('admin_blacklists',))
+        if bool(cur.rowcount):
+            logger.info("#### TABLE ALREADY EXIST IN THE DATABASE PASSING IT")
+            conn.close()
+            return True
+        else:
+            metadata = sqlalchemy.MetaData()
+            blacklists = sqlalchemy.Table(
+                "admin_blacklists", metadata,
+                sqlalchemy.Column("token", sqlalchemy.String(700), unique=True),
+                sqlalchemy.Column("email", sqlalchemy.String(100))
+            )
+            engine = sqlalchemy.create_engine(
+                DB_URL, pool_size=3, max_overflow=0)
+            metadata.create_all(engine)
+            conn.close()
+            return blacklists
+    except Exception as e:
+        logger.error("{}".format(e))
+
 
 def creating_facility_tables():
     try:

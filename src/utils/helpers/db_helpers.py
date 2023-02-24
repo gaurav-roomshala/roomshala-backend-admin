@@ -1,13 +1,31 @@
+from src.models.admin_model import ChangePassword
 from src.utils.connections.db_object import db
 from src.utils.helpers.raw_queries import QUERY_FOR_INSERTING_ADMIN
 from src.utils.logger.logger import logger
-from datetime import datetime, timezone
+from datetime import datetime
+from pytz import timezone
 
 
 def find_exist_admin(email: str):
     query = "select * from admin where email=:email"
     try:
         return db.fetch_one(query=query, values={"email": email})
+    except Exception as Why:
+        raise Exception("Something Went Wrong {}".format(Why))
+
+
+def find_active_admin(is_active):
+    query = "select id, first_name,last_name,phone_number,email,is_active from admin where is_active=:is_active"
+    try:
+        return db.fetch_all(query=query, values={"is_active": is_active})
+    except Exception as Why:
+        raise Exception("Something Went Wrong {}".format(Why))
+
+
+def find_all_admin():
+    query = "select id, first_name,last_name,phone_number,email, is_active from admin"
+    try:
+        return db.fetch_all(query=query)
     except Exception as Why:
         raise Exception("Something Went Wrong {}".format(Why))
 
@@ -95,3 +113,44 @@ def disable_reset_code(reset_password_token: str, mail: str):
         logger.error("#### EXCEPTION IN DISABLE_RESET_CODE IS {}".format(e))
     finally:
         logger.info("#### disable_reset_password_user FUNCTION COMPLETED ####")
+
+
+def find_black_list_token(token: str):
+    query = "SELECT * FROM admin_blacklists WHERE token=:token"
+    try:
+        return db.fetch_one(query, values={"token": token})
+    except Exception as e:
+        logger.error("####### EXCEPTION IN FIND_BLACK_LIST_TOKEN FUNCTION IS = {}".format(e))
+    finally:
+        logger.info("#### find_black_list_token FUNCTION COMPLETED ####")
+
+
+def save_black_list_token(token: str, email):
+    query = "INSERT INTO admin_blacklists VALUES (:token,:email)"
+    return db.execute(query, values={"token": token, "email": email})
+
+
+def get_protected_password(email: str):
+    query = "SELECT password FROM admin WHERE email=:email"
+    return db.execute(query=query, values={"email": email})
+
+
+def admin_change_password(change_password_object: ChangePassword, email: str):
+    query = "UPDATE admin SET password=:password,updated_on=:updated_on WHERE email=:email"
+    logger.info("####### CHANGING USER PASSWORD ##########")
+    try:
+        return db.execute(query, values={"password": change_password_object.new_password, "email": email,
+                                         "updated_on": datetime.now()})
+    except Exception as e:
+        logger.error("##### EXCEPTION IN CHANGING PASSWORD OF USER IS {}".format(e))
+
+
+def admin_change_status(id, status):
+    query = "UPDATE admin SET is_active=:is_active,updated_on=:updated_on WHERE id=:id"
+    try:
+        return db.execute(query=query, values={"is_active": status,
+                                               "updated_on": datetime.now(),
+                                               "id": id
+                                               })
+    except Exception as e:
+        logger.error("==== EXCEPTION IN CHANGING PASSWORD =====")
