@@ -7,9 +7,12 @@ from src.controller.v1.amenty import amenities
 from src.utils.connections.check_database_connection import DatabaseConfiguration
 from src.utils.connections.db_object import db
 from src.utils.custom_exceptions.custom_exceptions import CustomExceptionHandler
-from src.utils.tables.admin_db_tables import creating_admin_table, creating_amenties_tables, creating_facility_tables,creating_codes_table
+from src.utils.tables.admin_db_tables import creating_admin_table, creating_amenties_tables, creating_facility_tables, \
+    creating_codes_table, creating_blacklist_table, creating_property_table
 from src.controller.v1.admin import admin
 from src.controller.v1.facility import facility
+from src.controller.v1.property import list_property
+from starlette import status
 
 origins = ["*"]
 conn = DatabaseConfiguration()
@@ -21,6 +24,9 @@ def connections():
     creating_amenties_tables()
     creating_facility_tables()
     creating_codes_table()
+    creating_blacklist_table()
+    creating_property_table()
+
 
 connections()
 
@@ -39,6 +45,7 @@ app.add_middleware(
 app.include_router(admin, prefix=V1_PREFIX)
 app.include_router(facility, prefix=V1_PREFIX_PROPERTY)
 app.include_router(amenities, prefix=V1_PREFIX_PROPERTY)
+app.include_router(list_property, prefix=V1_PREFIX_PROPERTY)
 
 
 @app.get("/health")
@@ -64,6 +71,19 @@ async def NotFoundException(request: Request, exception: CustomExceptionHandler)
                                            "code": exception.code,
                                            "target": exception.target,
                                            "success": exception.success
+                                           }
+                                 }
+                        )
+
+
+@app.exception_handler(Exception)
+async def NotHandleException(request: Request, exception: Exception):
+    return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                        content={"error": {"message": "Something Went Wrong Broken Pipeline",
+                                           "code": status.HTTP_500_INTERNAL_SERVER_ERROR,
+                                           "target": request.url.components.path.upper(),
+                                           "error": exception.__str__(),
+                                           "success": False
                                            }
                                  }
                         )

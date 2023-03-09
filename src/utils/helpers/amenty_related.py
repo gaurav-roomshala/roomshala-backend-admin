@@ -31,8 +31,8 @@ def save_amenity(amen: Amenties):
     try:
         logger.info("#### PROCEEDING FURTHER FOR THE EXECUTION OF QUERY OF FACILITY")
         return db.execute(QUERY_FOR_SAVING_AMENITIES, values={"name": amen.name,
-                                                             "is_active": True
-                                                             })
+                                                              "is_active": True
+                                                              })
     except Exception as e:
         logger.error("##### EXCEPTION IN SAVE_AMENITIES FUNCTION IS {}".format(e))
         return False
@@ -81,3 +81,19 @@ def update_amenity_state(id, is_active):
         logger.error("### ERROR IN UPDATING AMENITIES {} #####".format(e))
     finally:
         logger.info("##### UPDATE AMENITIES METHOD OVER ####")
+
+
+async def check_if_amenity_valid(amenity):
+    if len(amenity) == 0:
+        return False
+    available_amenity_arr = []
+    true_amenity = await get_true_amenity()
+    for i in true_amenity:
+        check = dict(i)
+        available_amenity_arr.append(check["id"])
+    for verify in amenity:
+        if verify not in available_amenity_arr:
+            return False
+        else:
+            continue
+    return True

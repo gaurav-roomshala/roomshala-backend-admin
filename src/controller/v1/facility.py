@@ -67,8 +67,8 @@ async def fetch_facility(state: str = Query(None, description="to get which stat
                          ).response()
 
 
-@facility.patch("/facility/{id}",tags=["PROPERTY/SPECIFICATION"])
-async def update_facility(fac:FacilityUpdate,id:int=Path(...,description="Should be passed as integer")):
+@facility.patch("/facility/{id}", tags=["PROPERTY/SPECIFICATION"])
+async def update_facility(fac: FacilityUpdate, id: int = Path(..., description="Should be passed as integer")):
     response = await find_particular_facility_by_id(id=id)
     if response is None:
         logger.error("########### NO FACILITY IS FOUND FOR GIVEN ID ############")
@@ -76,7 +76,7 @@ async def update_facility(fac:FacilityUpdate,id:int=Path(...,description="Should
                                      code=status.HTTP_404_NOT_FOUND,
                                      success=False,
                                      target="[FACILITY DOES NOT EXIST]")
-    response = await update_facility_state(id=id,is_active=fac.is_active)
+    response = await update_facility_state(id=id, is_active=fac.is_active)
     if not response:
         raise CustomExceptionHandler(message="We regret,Something went wrong our at end.",
                                      code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -85,5 +85,5 @@ async def update_facility(fac:FacilityUpdate,id:int=Path(...,description="Should
     return ResponseModel(message="Successfully update the facility",
                          code=status.HTTP_200_OK,
                          success=True,
-                         data={"id":id}
+                         data={"id": id}
                          ).response()

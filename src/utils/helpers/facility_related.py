@@ -81,3 +81,19 @@ def update_facility_state(id, is_active):
         logger.error("### ERROR IN UPDATING FACILITIES {} #####".format(e))
     finally:
         logger.info("##### UPDATE FACILITIES METHOD OVER ####")
+
+
+async def check_if_facility_valid(facility):
+    if len(facility) == 0:
+        return False
+    available_facility_arr = []
+    true_facility = await get_true_facility()
+    for i in true_facility:
+        check = dict(i)
+        available_facility_arr.append(check["id"])
+    for verify in facility:
+        if verify not in available_facility_arr:
+            return False
+        else:
+            continue
+    return True

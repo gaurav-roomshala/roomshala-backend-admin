@@ -10,6 +10,13 @@ def random_with_N_digits(n):
     # return randint(range_start, range_end)
 
 
+def check_documents(necessary):
+    if necessary["aadhar"] is None or necessary["aadhar"] == "" or necessary["aadhar"] == "string":
+        return False
+    if necessary["pancard"] is None or necessary["pancard"] == "" or necessary["pancard"] == "string":
+        return False
+    return True
+
 
 def hash_password(password: str):
     return pwd_context.hash(password)
