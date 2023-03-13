@@ -31,7 +31,6 @@ def connections():
 
 
 
-connections()
 
 app = FastAPI(title="Roomshala Backend API'S",
               version="1.0.0"
