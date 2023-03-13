@@ -99,3 +99,7 @@ async def middleware(request: Request, call_next):
     execution_time = (datetime.utcnow() - start_time).microseconds
     response.headers["x-execution-time"] = str(execution_time)
     return response
+
+# if __name__ == "__main__":
+#     import uvicorn
+#     uvicorn.run(app, port=8000)

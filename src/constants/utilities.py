@@ -7,12 +7,11 @@
 # # #ADD DB PASSWORD ON PRODUCTION
 # # # DB_URL = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}/{DB_NAME}"
 # DB_URL = f"postgresql://{DB_USER}@{DB_HOST}/{DB_NAME}"
-
-DB_HOST ="roomshalainstancetest.clwy0rgkmro3.us-east-1.rds.amazonaws.com"
+DB_HOST ="dpg-cg7pbdik728uq3pld0a0-a.oregon-postgres.render.com"
 DB_PORT = 5432
-DB_USER = "postgres"
-DB_PASSWORD = "Anubhav1234"
-DB_NAME = "roomshala_admin"
+DB_USER = "potgresql"
+DB_PASSWORD = "27tsgGwha7FOJaS3nuIKT917IZqjXyyl"
+DB_NAME = "ro"
 DB_URL = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 
 EMAIL_REGEX = "^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$"
