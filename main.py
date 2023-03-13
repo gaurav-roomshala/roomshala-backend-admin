@@ -100,6 +100,6 @@ async def middleware(request: Request, call_next):
     response.headers["x-execution-time"] = str(execution_time)
     return response
 
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, port=8000)
+# if __name__ == "__main__":
+#     import uvicorn
+#     uvicorn.run(app, port=8000)
