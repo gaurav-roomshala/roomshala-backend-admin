@@ -29,7 +29,7 @@ def connections():
     property_facility_map()
     property_amenity_map()
 
-
+connections()
 
 
 app = FastAPI(title="Roomshala Backend API'S",
