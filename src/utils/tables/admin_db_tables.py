@@ -210,3 +210,61 @@ def creating_property_table():
         logger.error("######## WENT WRONG IN CREATING PROPERTY TABLE {} ########".format(e))
     finally:
         logger.info("###### CREATE PROPERTY TABLE FUNCTION OVER ###### ")
+
+
+def property_facility_map():
+    logger.info("======= GOING FOR PROPERTY_FACILITY_MAP =================")
+    try:
+        conn = psycopg2.connect(database=DB_NAME, user=DB_USER, host=DB_HOST, password=DB_PASSWORD, port=DB_PORT)
+        cur = conn.cursor()
+        cur.execute("select * from information_schema.tables where table_name=%s", ('property_facility_map',))
+        if bool(cur.rowcount):
+            logger.info("#### TABLE ALREADY EXIST IN THE DATABASE PASSING IT")
+            conn.close()
+            return True
+        else:
+            metadata = sqlalchemy.MetaData()
+            property_facility_map = sqlalchemy.Table(
+                "property_facility_map", metadata,
+                sqlalchemy.Column("id", Integer, Sequence("property_facility_map_id_seq"), primary_key=True),
+                sqlalchemy.Column("property_id", Integer),
+                sqlalchemy.Column("facility_id", Integer),
+            )
+            engine = sqlalchemy.create_engine(
+                DB_URL, pool_size=3)
+            metadata.create_all(engine)
+            conn.close()
+            return property_facility_map
+    except Exception as e:
+        logger.error("######## WENT WRONG IN CREATING PROPERTY_FACILITY_MAP TABLE {} ########".format(e))
+    finally:
+        logger.info("###### CREATE PROPERTY_FACILITY_MAP TABLE FUNCTION OVER ###### ")
+
+
+def property_amenity_map():
+    logger.info("======= GOING FOR property_amenity_map =================")
+    try:
+        conn = psycopg2.connect(database=DB_NAME, user=DB_USER, host=DB_HOST, password=DB_PASSWORD, port=DB_PORT)
+        cur = conn.cursor()
+        cur.execute("select * from information_schema.tables where table_name=%s", ('property_amenity_map',))
+        if bool(cur.rowcount):
+            logger.info("#### TABLE ALREADY EXIST IN THE DATABASE PASSING IT")
+            conn.close()
+            return True
+        else:
+            metadata = sqlalchemy.MetaData()
+            property_amenity_map = sqlalchemy.Table(
+                "property_amenity_map", metadata,
+                sqlalchemy.Column("id", Integer, Sequence("property_amenity_map_id_seq"), primary_key=True),
+                sqlalchemy.Column("property_id", Integer),
+                sqlalchemy.Column("amenity_id", Integer),
+            )
+            engine = sqlalchemy.create_engine(
+                DB_URL, pool_size=3)
+            metadata.create_all(engine)
+            conn.close()
+            return property_amenity_map
+    except Exception as e:
+        logger.error("######## WENT WRONG IN CREATING property_amenity_map TABLE {} ########".format(e))
+    finally:
+        logger.info("###### CREATE property_amenity_map TABLE FUNCTION OVER ######")

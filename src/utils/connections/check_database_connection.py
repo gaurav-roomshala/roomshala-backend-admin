@@ -10,7 +10,9 @@ class DatabaseConfiguration:
 
     def checking_connection(self):
         try:
-            self.connection = psycopg2.connect(database=DB_NAME, user=DB_USER, host=DB_HOST, password=DB_PASSWORD,
+            # self.connection = psycopg2.connect(database=DB_NAME, user=DB_USER, host=DB_HOST, password=DB_PASSWORD,
+            #                                    port=DB_PORT)
+            self.connection = psycopg2.connect(user=DB_USER, host=DB_HOST, password=DB_PASSWORD,
                                                port=DB_PORT)
             logger.info("######### DATABASE CONNECTED, PROCEEDING FURTHER  ###########")
         except Exception as e:

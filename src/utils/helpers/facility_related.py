@@ -97,3 +97,11 @@ async def check_if_facility_valid(facility):
         else:
             continue
     return True
+
+
+QUERY_FOR_FINDING_PROPERTY_FACILITY = "SELECT property_facility_map.property_id, facilities.name,facilities.id," \
+                                      "facilities.is_active FROM property_facility_map INNER JOIN facilities ON " \
+                                      "property_facility_map.facility_id=facilities.id WHERE property_id=:property_id "
+
+def get_facility_of_property(property_id:int):
+    return db.fetch_all(query=QUERY_FOR_FINDING_PROPERTY_FACILITY,values={"property_id":property_id})

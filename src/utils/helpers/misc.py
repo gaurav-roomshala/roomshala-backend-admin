@@ -1,7 +1,10 @@
+import json
 from random import randint
 from passlib.context import CryptContext
 from src.constants.field import BCRYPT_SCHEMA
+
 pwd_context = CryptContext(schemes=[BCRYPT_SCHEMA])
+
 
 def random_with_N_digits(n):
     return "Hello@123"
@@ -15,7 +18,14 @@ def check_documents(necessary):
         return False
     if necessary["pancard"] is None or necessary["pancard"] == "" or necessary["pancard"] == "string":
         return False
+    # modify
+
     return True
+
+
+def modify_docs(docs):
+    return json.dumps(docs)
+
 
 
 def hash_password(password: str):
@@ -23,8 +33,8 @@ def hash_password(password: str):
 
 
 def verify_password(plain_password: str, hashed_passwrd: str):
-
     return pwd_context.verify(plain_password, hashed_passwrd)
 
 
-print(verify_password(plain_password="Anubhav@1234",hashed_passwrd="$2b$12$GBYAwZwVFSVkMvraQ2VL/OLALc3HUip6tYZGeX0AaE2IFHT/EMkeK"))
+print(verify_password(plain_password="Anubhav@1234",
+                      hashed_passwrd="$2b$12$GBYAwZwVFSVkMvraQ2VL/OLALc3HUip6tYZGeX0AaE2IFHT/EMkeK"))

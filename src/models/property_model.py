@@ -4,7 +4,7 @@ from datetime import datetime
 from starlette import status
 from src.constants.utilities import PHONE_REGEX, EMAIL_REGEX
 from src.utils.custom_exceptions.custom_exceptions import CustomExceptionHandler
-from typing import List
+from typing import List, Dict
 
 PropertyType = ["Hotel", "Bnb"]
 
@@ -15,8 +15,8 @@ class NecessaryDocs(BaseModel):
 
 
 class PropertyDocs(BaseModel):
-    property_images: list = Field(..., description="")
-    legal_papers: list = Field(..., description="")
+    property_images: List[Dict] = Field(..., description="")
+    legal_papers: List[Dict] = Field(..., description="")
 
 
 class Property(BaseModel):
@@ -38,14 +38,30 @@ class Property(BaseModel):
     facilities: List[int] = Field(..., description="Facilities")
     amenities: List[int] = Field(..., description="")
     property_docs: PropertyDocs
+    is_active: bool = Field(default=False)
     created_on: datetime
     created_by: str
     updated_on: datetime
     updated_by: str
 
+    @validator("state")
+    @classmethod
+    def state_lower(cls, value):
+        return value.lower()
+
+    @validator("city")
+    @classmethod
+    def city_lower(cls, value):
+        return value.lower()
+
+    @validator("locality")
+    @classmethod
+    def locality_lower(cls, value):
+        return value.lower()
+
     @validator("facilities")
     @classmethod
-    def check_if_facility_unique(cls,value):
+    def check_if_facility_unique(cls, value):
         flag = len(set(value)) == len(value)
         if not flag:
             raise CustomExceptionHandler(message="Duplicate Entry In Facility",

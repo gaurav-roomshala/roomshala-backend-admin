@@ -97,3 +97,11 @@ async def check_if_amenity_valid(amenity):
         else:
             continue
     return True
+
+
+QUERY_FOR_FINDING_PROPERTY_AMENITY = "SELECT property_amenity_map.property_id, amenties.name,amenties.id," \
+                                      "amenties.is_active FROM property_amenity_map INNER JOIN amenties ON " \
+                                      "property_amenity_map.amenity_id=amenties.id WHERE property_id=:property_id "
+
+def get_amenity_of_property(property_id:int):
+    return db.fetch_all(query=QUERY_FOR_FINDING_PROPERTY_AMENITY,values={"property_id":property_id})
