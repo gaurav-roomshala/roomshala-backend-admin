@@ -12,11 +12,12 @@ class DatabaseConfiguration:
         try:
             # self.connection = psycopg2.connect(database=DB_NAME, user=DB_USER, host=DB_HOST, password=DB_PASSWORD,
             #                                    port=DB_PORT)
-            self.connection = psycopg2.connect(user=DB_USER, host=DB_HOST, password=DB_PASSWORD,
+            self.connection = psycopg2.connect(user=DB_USER, host=DB_HOST, password=DB_PASSWORD,database=DB_NAME,
                                                port=DB_PORT)
             logger.info("######### DATABASE CONNECTED, PROCEEDING FURTHER  ###########")
         except Exception as e:
             logger.error("###### CANNOT ABLE TO CONNECT WITH DATABASE WITH EXCEPTION {} ########".format(e))
+            raise Exception(e)
         finally:
             logger.info("##### CHECK DB FUNCTION COMPLETED ####")
         return self.connection

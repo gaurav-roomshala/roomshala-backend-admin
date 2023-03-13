@@ -1,38 +1,94 @@
 import uuid
 from typing import Optional
-
 from fastapi import APIRouter, Query, Path, Depends
-import re
-
 from fastapi.security import OAuth2PasswordRequestForm
 from starlette import status
 from fastapi.encoders import jsonable_encoder
 from src.constants.utilities import PHONE_REGEX, JWT_EXPIRATION_TIME
-from src.models.admin_model import Admin, ForgotPassword, ResetPassword, ChangePassword, ChangeStatus
+from src.models.admin_model import Admin, ForgotPassword, ResetPassword, ChangePassword, ChangeStatus, SuperAdmin
 from src.utils.checks.admin_related_check import CheckAdminExistence
 from src.utils.custom_exceptions.custom_exceptions import CustomExceptionHandler
 from src.utils.helpers import jwt_utils
 from src.utils.helpers.db_helpers import add_admin, admin_registered_with_mail_or_phone, find_exist_admin, \
     create_reset_code, check_reset_password_token, reset_admin_password, disable_reset_code, save_black_list_token, \
     get_protected_password, admin_change_password, find_exist_admin_by_id, admin_change_status, find_active_admin, \
-    find_all_admin
+    find_all_admin, check_for_super_admin
 from src.utils.helpers.jwt_utils import get_current_user, get_token_user
 from src.utils.helpers.misc import random_with_N_digits, hash_password, verify_password
 from src.utils.logger.logger import logger
 from src.models.admin_model import Role
 from src.utils.response.data_response import ResponseModel
+from requests import request
 
 admin = APIRouter()
 
 
+@admin.post("/register/super-admin")
+async def create_admin(admin: SuperAdmin):
+    admin_map = jsonable_encoder(admin)
+    find_admin = CheckAdminExistence(target="CHECK_ADMIN", phone_number=admin_map["phone_number"],
+                                     id=id,
+                                     email=admin_map["email"])
+    await find_admin.find_admin_by_email()
+    await find_admin.find_admin_by_phone()
+    check = await check_for_super_admin(role="SUPER_ADMIN")
+    if check is not None:
+        raise CustomExceptionHandler(message="Cannot use this api",
+                                     target="",
+                                     success=False,
+                                     code=status.HTTP_401_UNAUTHORIZED
+                                     )
+    if admin_map["role"] !="SUPER_ADMIN":
+        raise CustomExceptionHandler(message="Forbidden",
+                                     target="",
+                                     success=False,
+                                     code=status.HTTP_401_UNAUTHORIZED
+                                     )
+    password = str(random_with_N_digits(n=10))
+    logger.info("==== RANDOMLY GENERATED PASSWORD =====")
+    admin_map["password"] = hash_password(password)
+    success = await add_admin(admin_map)
+    if not success:
+        raise CustomExceptionHandler(message="Something went wrong,Please try again later",
+                                     code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                                     target="CHECK_ADMIN",
+                                     success=False
+                                     )
+    access_token_expires = jwt_utils.timedelta(minutes=JWT_EXPIRATION_TIME)
+    access_token = await jwt_utils.create_access_token(
+        data=admin_map,
+        expire_delta=access_token_expires
+    )
+    return ResponseModel(message="Welcome to roomshala",
+                         code=status.HTTP_201_CREATED,
+                         success=True,
+                         data={"access_token": access_token,
+                               "token_type": "bearer",
+                               "id": success,
+                               "first_name": admin_map["first_name"],
+                               "last_name": admin_map["last_name"],
+                               "gender": admin_map["gender"],
+                               "email": admin_map["email"],
+                               "phone_number": admin_map["phone_number"],
+                               "role": admin_map["role"]
+                               }
+                         ).response()
+
+
 @admin.post("/register/{id}", tags=["ADMIN/GENERAL"], description="Create Call For Adding Admin's and Users")
-async def register_admin(admin: Admin):
+async def register_admin(admin: Admin,id:int):
     # check if id has the authorised role which is super admin, and createdby equals to user
     admin_map = jsonable_encoder(admin)
     find_admin = CheckAdminExistence(target="CHECK_ADMIN", phone_number=admin_map["phone_number"],
                                      id=id,
                                      email=admin_map["email"])
-    # check_for_role = find_admin.find_admin_by_id()
+    check = await find_exist_admin_by_id(id=id)
+    if check is None:
+        raise CustomExceptionHandler(message="Super admin id doesn't exist",
+                                     code=status.HTTP_400_BAD_REQUEST,
+                                     target="CHECK_ADMIN",
+                                     success=False
+                                     )
     logger.info("====== REGISTRATION PROCESS STARTED FOR {}".format(admin_map["first_name"]))
     await find_admin.find_admin_by_email()
     await find_admin.find_admin_by_phone()

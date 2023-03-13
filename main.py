@@ -2,13 +2,13 @@ from datetime import datetime
 from fastapi import FastAPI, Request, Query
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.responses import JSONResponse
-from src.constants.field import V1_PREFIX, V1_PREFIX_PROPERTY
+from src.constants.field import V1_PREFIX, V1_PREFIX_PROPERTY, V1_PREFIX_PROPERTY_MAIN
 from src.controller.v1.amenty import amenities
 from src.utils.connections.check_database_connection import DatabaseConfiguration
 from src.utils.connections.db_object import db
 from src.utils.custom_exceptions.custom_exceptions import CustomExceptionHandler
 from src.utils.tables.admin_db_tables import creating_admin_table, creating_amenties_tables, creating_facility_tables, \
-    creating_codes_table, creating_blacklist_table, creating_property_table
+    creating_codes_table, creating_blacklist_table, creating_property_table, property_facility_map, property_amenity_map
 from src.controller.v1.admin import admin
 from src.controller.v1.facility import facility
 from src.controller.v1.property import list_property
@@ -26,6 +26,9 @@ def connections():
     creating_codes_table()
     creating_blacklist_table()
     creating_property_table()
+    property_facility_map()
+    property_amenity_map()
+
 
 
 connections()
@@ -45,7 +48,7 @@ app.add_middleware(
 app.include_router(admin, prefix=V1_PREFIX)
 app.include_router(facility, prefix=V1_PREFIX_PROPERTY)
 app.include_router(amenities, prefix=V1_PREFIX_PROPERTY)
-app.include_router(list_property, prefix=V1_PREFIX_PROPERTY)
+app.include_router(list_property, prefix=V1_PREFIX_PROPERTY_MAIN,tags=["PROPERTY/MAIN"])
 
 
 @app.get("/health")
@@ -98,8 +101,6 @@ async def middleware(request: Request, call_next):
     response.headers["x-execution-time"] = str(execution_time)
     return response
 
-
 if __name__ == "__main__":
     import uvicorn
-
-    uvicorn.run(app, port=8001)
+    uvicorn.run(app, port=8000)

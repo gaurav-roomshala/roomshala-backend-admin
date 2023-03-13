@@ -3,6 +3,8 @@ DOCTOR_LOGIN = "DOCTOR_LOGIN"
 BCRYPT_SCHEMA = "bcrypt"
 V1_PREFIX = "/api/v1/admin"
 V1_PREFIX_PROPERTY = "/api/v1/property"
+V1_PREFIX_PROPERTY_MAIN = "/api/v1"
+
 
 TRUE = "true"
 FALSE = "false"

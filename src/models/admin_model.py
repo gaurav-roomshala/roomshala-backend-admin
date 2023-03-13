@@ -11,6 +11,7 @@ from datetime import datetime
 import re
 from src.utils.custom_exceptions.custom_exceptions import CustomExceptionHandler
 
+
 class Gender(str, Enum):
     male = "MALE"
     female = "FEMALE"
@@ -23,7 +24,7 @@ class Role(str, Enum):
 
 
 class ChangeStatus(BaseModel):
-    is_active:bool
+    is_active: bool
 
 
 class ChangePassword(BaseModel):
@@ -39,30 +40,42 @@ class ResetPassword(BaseModel):
 
 
 class ForgotPassword(BaseModel):
-    mail:str = Field(...,description="Mail")
+    mail: str = Field(..., description="Mail")
+
+
+class SuperAdmin(BaseModel):
+    first_name = "RAJAT"
+    last_name = "Sharma"
+    gender = "Male"
+    email = "rajat@roomshala.com"
+    phone_number = "9899308683"
+    role = "SUPER_ADMIN"
+    is_active = True
+    created_by = "rajat@roomshala.com"
+    updated_by = "rajat@roomshala.com"
 
 
 class Admin(BaseModel):
-    first_name: str = Field(...,)
+    first_name: str = Field(..., )
     last_name: str = Field(...)
     gender: Gender
     email: str = Field(...)
     phone_number: str = Field(...)
     is_active: bool = None
     role: Role
-    created_on:datetime = None
-    created_by:str = Field(...,description="")
-    updated_on:datetime = None
-    updated_by:str = Field(...,description="")
+    created_on: datetime = None
+    created_by: str = Field(..., description="")
+    updated_on: datetime = None
+    updated_by: str = Field(..., description="")
 
     @validator("first_name")
     @classmethod
-    def return_lower(cls,value):
+    def return_lower(cls, value):
         return value.lower()
 
     @validator("email")
     @classmethod
-    def check_email(cls,value):
+    def check_email(cls, value):
         pattern = re.compile(EMAIL_REGEX)
         if not pattern.match(value):
             raise CustomExceptionHandler(message="Please enter a valid email",

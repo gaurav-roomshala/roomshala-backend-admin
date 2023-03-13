@@ -8,4 +8,4 @@ try:
     db = Database(DB_URL)
 except Exception as e:
     logger.error("###### EXCEPTION IN DB_OBJECT IS {} ###########".format(e))
-    raise DatabaseConnectionError(message="Error Occur in Database")
+    raise DatabaseConnectionError(message="Error Occur in Database {}".format(e))

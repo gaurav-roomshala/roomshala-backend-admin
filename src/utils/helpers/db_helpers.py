@@ -38,6 +38,13 @@ def find_exist_admin_by_id(id):
         raise Exception("Something Went Wrong {}".format(Why))
 
 
+def check_for_super_admin(role):
+    query = "select * from admin where role=:role"
+    try:
+        return db.fetch_one(query=query, values={"role": role})
+    except Exception as Why:
+        raise Exception("Something Went Wrong {}".format(Why))
+
 def find_exist_admin_via_phone(phone_number: str):
     query = "select * from admin where phone_number=:phone_number"
     try:
